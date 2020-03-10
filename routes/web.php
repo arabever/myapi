@@ -27,54 +27,62 @@ Route::get('/a', function () {
         } 
         return ''; 
       } 
-
-      $dochtml = new DOMDocument();
-      $client = new Client(HttpClient::create(['timeout' => 60]));
-      $c = $client->request('GET', 'https://codeforces.com/submissions/Moustafa.');
-      $rows =$c->filter('.status-frame-datatable tr')->count();
-      $d=$c->filter('body');
-      $data=$d->html();
-      $dochtml = new DOMDocument();
-      $dochtml->loadHTML($data);
-      $td = $dochtml->getElementsByTagName('ul');
-      echo $td[3]->nodeValue . '<br>';
-  
       //echo $rows;
-
-      $client = new Client(HttpClient::create(['timeout' => 60]));
-      $c = $client->request('GET', 'https://codeforces.com/submissions/Moustafa.');
-      //$rows =$c->filter('ul:nth-of-type(2)')->html();
-      //echo $rows;
-
-      
-    $client = new Client(HttpClient::create(['timeout' => 60]));
-    $c = $client->request('GET', 'https://codeforces.com/submissions/Moustafa.');
-    // $countRows = $c->filter('.status-frame-datatable tr')->count();
-    // for($i=2;$i<=$countRows;$i++){
-    //     $subtext='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(1)';
-    //     $problemText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(4)';
-    //     $langText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(5)';
-    //     $verdictText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(6)';
-    //     $submission=$c->filter($subtext)->text();
-    //     $problem=$c->filter($problemText)->text();
-    //     $lang=$c->filter($langText)->text();
-    //     $verdict=$c->filter($verdictText)->text();
-    //     echo $submission . ' ' . $problem . ' ' . $lang . ' ' . $verdict;
-    //     echo "\n";
-    // }
+      $pageNumber=1;
+      $condition=true;
+      $temp='';
+      while($condition){
+      $client = new Client(HttpClient::create(['timeout' => 1600]));
+      $requestLink='https://codeforces.com/submissions/HagarAlaa/page/' . $pageNumber;
+      $c = $client->request('GET', $requestLink);
+    $countRows = $c->filter('.status-frame-datatable tr')->count();
+    if($countRows<2){
+        $condition=false;
+    break;
+    }
+    for($i=2;$i<=$countRows;$i++){
+        
+        $subtext='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(1)';
+        $submission=$c->filter($subtext)->text();
+        $problemText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(4)';
+        $link= string_between_two_string($c->filter($problemText)->html(),'"','"');
+        $contestNumber=explode('/',$link)[2];
+        $langText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(5)';
+        $verdictText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(6)';
+        $problem=$c->filter($problemText)->text();
+        $lang=$c->filter($langText)->text();
+        $verdict=$c->filter($verdictText)->text();
+        //get code link
+        $codeLinkString='https://codeforces.com/contest/' . $contestNumber . '/submission/' . $submission;
+        $coldLink= $client->request('GET', $codeLinkString);
+        $data = $coldLink->filter('pre')->html();
+            echo str_replace("?","",$data);
+        if($i==2){
+            if($temp == $submission){
+            $condition=false;
+            break;
+            }
+            $temp=$submission;
+        }
+        echo $submission . ' ' . $problem . ' ' . $lang . ' ' . $verdict;
+        echo "\n";
+    }
+    $pageNumber++;
+    if($pageNumber==3){
+        $condition=false;
+    }
+}
     return [];
 });
 
 Route::get('/trial', function () {
-    $client = new Client(HttpClient::create(['timeout' => 60]));
+    $client = new Client(HttpClient::create(['timeout' => 1600]));
     $crawler = $client->request('GET', 'https://codeforces.com/submissions/zakaria.samy');
     $text = $crawler->filter('tr:nth-child(3) .view-source')->text();
     $link = $crawler->selectLink($text)->link();
     $c = $client->click($link);
-    $c->filter('pre')->each(function ($n) {
-        $data=$n->html();
+    $data = $c->filter('pre')->html();
         echo str_replace("?","",$data);
-    });
     echo '';
 
     return [];
