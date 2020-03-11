@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Submission;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,6 +17,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::middleware('auth:airlock')->get('/user', function (Request $request) {
     return $request->user();
+});
+
+Route::middleware('auth:airlock')->get('/submission', function (Request $request) {
+    $submissions = $request->user()->submissions;
+    return response()->json(compact('submissions'));
 });
 
 

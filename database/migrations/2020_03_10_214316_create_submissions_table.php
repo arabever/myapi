@@ -14,13 +14,14 @@ class CreateSubmissionsTable extends Migration
     public function up()
     {
         Schema::create('submissions', function (Blueprint $table) {
-            $table->id()->unique();
-            $table->timestamps();
+            $table->id();
+            $table->primary('id');
             $table->string('name');
             $table->string('lang');
             $table->string('verdict');
             $table->text('code');
             $table->string('link');
+            $table->timestamps();
         });
     }
 

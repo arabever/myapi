@@ -46,6 +46,9 @@ Route::get('/a', function () {
         $submission=$c->filter($subtext)->text();
         $problemText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(4)';
         $link= string_between_two_string($c->filter($problemText)->html(),'"','"');
+        if(explode('/',$link)[1] != 'contest'){
+            continue;
+        }
         $contestNumber=explode('/',$link)[2];
         $langText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(5)';
         $verdictText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(6)';
@@ -56,7 +59,7 @@ Route::get('/a', function () {
         $codeLinkString='https://codeforces.com/contest/' . $contestNumber . '/submission/' . $submission;
         $coldLink= $client->request('GET', $codeLinkString);
         $data = $coldLink->filter('pre')->html();
-            echo str_replace("?","",$data);
+            //echo str_replace("?","",$data);
         if($i==2){
             if($temp == $submission){
             $condition=false;
@@ -64,8 +67,8 @@ Route::get('/a', function () {
             }
             $temp=$submission;
         }
-        echo $submission . ' ' . $problem . ' ' . $lang . ' ' . $verdict;
-        echo "\n";
+        //echo $submission . ' ' . $problem . ' ' . $lang . ' ' . $verdict;
+        //echo "\n";
     }
     $pageNumber++;
     if($pageNumber==3){
