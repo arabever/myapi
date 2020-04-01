@@ -1,8 +1,19 @@
 <?php
 
+use App\ProtectBlock;
+//use Goutte\Client;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Route;
-use Goutte\Client;
+//use Illuminate\Support\Facades\Http;
+use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\HttpClient\HttpClient;
+use App\GetSubNewUser;
+use App\submission;
+use App\User;
+use App\TempCurrentUser;
+use App\EmptyUser;
+use App\FirstSubSuccessScrap;
+use App\Http\Controllers;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,81 +27,68 @@ use Symfony\Component\HttpClient\HttpClient;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return EmptyUser::all();
+    //return view('get');
+});
+Route::get('/getsub', function () {
+    return view('get');
 });
 Route::get('/a', function () {
-    function string_between_two_string($str, $starting_word, $ending_word){ 
-        $arr = explode($starting_word, $str); 
-        if (isset($arr[1])){ 
-            $arr = explode($ending_word, $arr[1]); 
-            return $arr[0]; 
-        } 
-        return ''; 
-      } 
-      //echo $rows;
+
+    $link='arabever';
+    $client = new GuzzleHttp\Client();
+    $res = $client->request('GET', "https://codeforces.com/api/user.info?handles={$link}",['http_errors' => false]);
+    if($res->getStatusCode()==200)
+        echo 'succeed';
+    else
+        echo 'no';
+        //get code link
+       // $codeLinkString='https://codeforces.com/contest/' . $contestNumber . '/submission/' . $submission;
+       // $coldLink= $client->request('GET', $codeLinkString);
+        //$data = $coldLink->filter('pre')->html();
+        //echo $submission . ' ' . $problem . ' ' . $lang . ' ' . $verdict;
+        //echo "\n";
+        //return $response;
+});
+
+Route::get('/trial', function () {    
+    $client = new GuzzleHttp\Client([
+       // 'timeout' => 10,
+        'base_uri' => 'https://codeforces.com/',
+        'proxy' => [
+            'http'  => 'https://45.77.202.16:8118', // Use this proxy with "http"
+            'https' => 'https://45.77.202.16:8118', // Use this proxy with "https",
+        ],
+        'headers' => [
+            'Host'=>'www.codeforces.com',
+            'User-Agent' => ProtectBlock::getUserAgent(),
+            'Referer'=>'http://codeforces.com',
+            'Connection'=> 'Keep-Alive',
+            'Cache-Control'=> 'max-age=0',
+            ]
+    ]);
+    //$client->setUserAgent(UserAgent::getUserAgent());
+    $response = $client->request('GET', 'arabever');
+    $content = (string)$response->getBody();
+    $body = new Crawler($content);
       $pageNumber=1;
       $condition=true;
       $temp='';
-      while($condition){
-      $client = new Client(HttpClient::create(['timeout' => 1600]));
-      $requestLink='https://codeforces.com/submissions/HagarAlaa/page/' . $pageNumber;
-      $c = $client->request('GET', $requestLink);
-    $countRows = $c->filter('.status-frame-datatable tr')->count();
-    if($countRows<2){
-        $condition=false;
-    break;
-    }
-    for($i=2;$i<=$countRows;$i++){
-        
-        $subtext='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(1)';
-        $submission=$c->filter($subtext)->text();
+    $countRows = $body->filter('.status-frame-datatable tr')->count();
+    for($i=2;$i<=4;$i++){
         $problemText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(4)';
-        $link= string_between_two_string($c->filter($problemText)->html(),'"','"');
-        if(explode('/',$link)[1] != 'contest'){
-            continue;
-        }
-        $contestNumber=explode('/',$link)[2];
-        $langText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(5)';
-        $verdictText='.status-frame-datatable tr:nth-child(' . $i . ') td:nth-child(6)';
-        $problem=$c->filter($problemText)->text();
-        $lang=$c->filter($langText)->text();
-        $verdict=$c->filter($verdictText)->text();
-        //get code link
-        $codeLinkString='https://codeforces.com/contest/' . $contestNumber . '/submission/' . $submission;
-        $coldLink= $client->request('GET', $codeLinkString);
-        $data = $coldLink->filter('pre')->html();
-            //echo str_replace("?","",$data);
-        if($i==2){
-            if($temp == $submission){
-            $condition=false;
-            break;
-            }
-            $temp=$submission;
-        }
+        $problem=$body->filter($problemText)->text();
+
+        echo $problem;
+
         //echo $submission . ' ' . $problem . ' ' . $lang . ' ' . $verdict;
         //echo "\n";
     }
-    $pageNumber++;
-    if($pageNumber==3){
-        $condition=false;
-    }
-}
     return [];
 });
 
-Route::get('/trial', function () {
-    $client = new Client(HttpClient::create(['timeout' => 1600]));
-    $crawler = $client->request('GET', 'https://codeforces.com/submissions/zakaria.samy');
-    $text = $crawler->filter('tr:nth-child(3) .view-source')->text();
-    $link = $crawler->selectLink($text)->link();
-    $c = $client->click($link);
-    $data = $c->filter('pre')->html();
-        echo str_replace("?","",$data);
-    echo '';
-
-    return [];
-});
 
 Auth::routes();
 
+Route::get('/home', 'RegisterController@register');
 Route::get('/home', 'HomeController@index')->name('home');

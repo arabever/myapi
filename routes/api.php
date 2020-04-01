@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Submission;
@@ -19,11 +18,12 @@ Route::middleware('auth:airlock')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware('auth:airlock')->get('/submission', function (Request $request) {
+Route::middleware('auth:airlock')->get('/snippets/codeforcessubmissions', function (Request $request) {
     $submissions = $request->user()->submissions;
     return response()->json(compact('submissions'));
 });
-
+Route::get('/new', 'SubmissionController@getNewUser');
+Route::get('/current', 'SubmissionController@getCurrentUser');
 
 
 Route::post('/user/register', 'API\RegisterController@register');

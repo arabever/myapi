@@ -6,6 +6,10 @@ use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Airlock\HasApiTokens;
+use App\GetSubNewUser;
+use App\TempCurrentUser;
+use App\FirstSubSuccessScrap;
+use App\EmptyUser;
 
 class User extends Authenticatable
 {
@@ -42,4 +46,21 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Submission');
     }
+    public function initialSub()
+    {
+        return $this->hasOne('App\GetSubNewUser', 'user_id');
+    }
+    public function firstSub() // first submission in success scrap
+    {
+        return $this->hasOne('App\FirstSubSuccessScrap', 'user_id');
+    }
+    public function temp() // temp record will be created if current user can't complete his submissions and store last submission before start last fail update
+    {
+        return $this->hasOne('App\TempCurrentUser', 'user_id');
+    }
+    public function empty() // has No submissions
+    {
+        return $this->hasOne('App\EmptyUser', 'user_id');
+    }
+
 }

@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+
+<h2 style="margin-top: 90px;" class="text-center"> اختار اسحبي تسحب مين</h2>
+<div class="text-center" style="margin-top: 29px;">
+<button type="button" class="btn btn-outline-primary" onclick="newUsers()">New users</button>
+<button type="button" class="btn btn-outline-success" onclick="currentUsers()">Current users</button>
+</div>
+<div id="demo" class="alert alert-primary text-center mt-5" style="    font-size: 21px;
+font-weight: bold;" role="alert">
+</div>
+
+<p id="demo"></p>
+<script>
+  function newUsers() {
+  document.getElementById("demo").innerHTML = "Wait ......";
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("demo").innerHTML = "New users updated successfully!";
+    }
+  }
+  xhttp.open("GET", "http://myapi.test/api/new", true);
+  xhttp.send();
+};
+
+function currentUsers() {
+  document.getElementById("demo").innerHTML = "Wait ......";
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+    if (this.readyState == 4 && this.status == 200) {
+      document.getElementById("demo").innerHTML = "Current users updated successfully!";
+    }
+  }
+  xhttp.open("GET", "http://myapi.test/api/current", true);
+  xhttp.send();
+};
+</script>
+
+</body>
+</html>
