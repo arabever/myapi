@@ -27,7 +27,7 @@ use App\Http\Controllers;
 */
 
 Route::get('/', function () {
-    return view('get');
+    return view('welcome');
 });
 Route::get('/getsub', function () {
     return view('get');
