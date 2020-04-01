@@ -27,8 +27,7 @@ use App\Http\Controllers;
 */
 
 Route::get('/', function () {
-    return EmptyUser::all();
-    //return view('get');
+    return view('get');
 });
 Route::get('/getsub', function () {
     return view('get');

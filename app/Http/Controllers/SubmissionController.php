@@ -26,14 +26,10 @@ class SubmissionController extends Controller
         return ''; 
       }
     public function getNewUser(){ // will send request to get All Submissions For every User
-        foreach (EmptyUser::all() as $UserNeedSub){
-            $user = $UserNeedSub->user;
-            $this->getAllSub($user->name,$user->id);
-    }
         foreach (GetSubNewUser::all() as $UserNeedSub){
             $user = $UserNeedSub->user;
-            if(!empty($user->submissions))
-                $this->getNewSub($user->name,$user->id,$user->submissions);
+            $firstSub=$user->firstSub;
+            $this->getNewSub($user->name,$user->id,$user->submissions,$firstSub);
 }
     }
 
@@ -134,7 +130,7 @@ class SubmissionController extends Controller
         $pageNumber++;
     }
 
-    public function getNewSub($name,$id,$allSubmissionsDB){
+    public function getNewSub($name,$id,$allSubmissionsDB,$firstSub){
         // Register For register Controller
       // Get all user's submissions and add it to database
         // ***************************************************** 
@@ -211,9 +207,17 @@ class SubmissionController extends Controller
                 'user_id'=>$id,
                 ]);
             if($counter==0){
+                if($firstSub !=''){
                 User::find($id)->firstSub->update([
                     'submission_id'=>$submissionInDatabase->id,
                 ]);
+                }
+                else{
+                FirstSubSuccessScrap::create([
+                    'user_id'=>$id,
+                    'submission_id'=>$submissionInDatabase->id,
+                ]);  
+                }
                 $counter++;
             }
         }
